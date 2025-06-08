@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="table" id="product-table">
+        <table th:if="${!allProducts.empty}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Vendor</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product : ${allProducts}">
+                    <td th:text="${product.id}">1</td>
+                    <td th:text="${product.title}">Product Title</td>
+                    <td th:text="${product.vendor ?: 'N/A'}">Vendor</td>
+                    <td th:text="${product.productType ?: 'N/A'}">Type</td>
+                    <td th:text="${product.price != null ? '$' + product.price : 'N/A'}">$0.00</td>
+                    <td>
+                        <div class="action-buttons">
+                            <sl-button size="small" variant="neutral" th:href="@{'/products/' + ${product.id} + '/edit'}">
+                                <sl-icon slot="prefix" name="pencil"></sl-icon>
+                                Edit
+                            </sl-button>
+                            <div th:attr="hx-delete=@{'/products/' + ${product.id}}"
+                                 hx-target="#product-table" 
+                                 hx-swap="outerHTML"
+                                 hx-confirm="Are you sure you want to delete this product?">
+                                <sl-button size="small" variant="danger">
+                                    <sl-icon slot="prefix" name="trash"></sl-icon>
+                                    Delete
+                                </sl-button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div th:if="${allProducts.empty}" class="empty-state">
+            <sl-icon name="box" style="font-size: 3rem; margin-bottom: 1rem;"></sl-icon>
+            <p>No products found. Add some products using the form below.</p>
+        </div>
+    </div>
+</body>
+</html>

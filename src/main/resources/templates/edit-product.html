@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CS Demo - Edit Product</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Shoelace CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/light.css" />
+    
+    <!-- Shoelace JS -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/shoelace-autoloader.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #ff5ca8;
+            --secondary-color: #f687b3;
+            --accent-color: #d53f8c;
+            --gradient-start: #ff5ca8;
+            --gradient-end: #f687b3;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --bg-color: #fdf2f8;
+            --card-bg: #ffffff;
+            --border-color: #fed7e2;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(255, 92, 168, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+        
+        .header:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            border-radius: 2px;
+        }
+        
+        .header h1 {
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(255, 92, 168, 0.05);
+        }
+        
+        .form-grid sl-input::part(form-control) {
+            margin-bottom: 10px;
+        }
+        
+        .form-grid sl-input::part(base) {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-grid sl-input:focus-within::part(base) {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 92, 168, 0.15);
+        }
+        
+        .form-grid sl-input::part(label) {
+            color: var(--accent-color);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        /* Custom Shoelace Button Styling */
+        sl-button::part(base) {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+        }
+        
+        sl-button[variant="success"]::part(base) {
+            background: linear-gradient(to right, #12c2e9, #c471ed);
+            border: none;
+        }
+        
+        sl-button[variant="neutral"]::part(base) {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        sl-button:hover::part(base) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Edit Product</h1>
+        </header>
+        
+        <main>
+            <section th:if="${product}">
+                <form th:action="@{'/products/' + ${product.id}}" method="post">
+                    <div class="form-grid">
+                        <sl-input 
+                            name="title" 
+                            label="Product Title" 
+                            th:value="${product.title}"
+                            required>
+                        </sl-input>
+                        
+                        <sl-input 
+                            name="vendor" 
+                            label="Vendor" 
+                            th:value="${product.vendor}">
+                        </sl-input>
+                        
+                        <sl-input 
+                            name="productType" 
+                            label="Product Type" 
+                            th:value="${product.productType}">
+                        </sl-input>
+                        
+                        <sl-input 
+                            name="price" 
+                            label="Price" 
+                            type="number" 
+                            step="0.01" 
+                            th:value="${product.price}">
+                        </sl-input>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <sl-button type="submit" variant="success">
+                            Update Product
+                        </sl-button>
+                        
+                        <sl-button variant="neutral" onclick="window.location.href='/'">
+                            Cancel
+                        </sl-button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
