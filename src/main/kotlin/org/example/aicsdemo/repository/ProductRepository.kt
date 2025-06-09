@@ -13,7 +13,7 @@ class ProductRepository(private val jdbcClient: JdbcClient) {
         return jdbcClient.sql("""
             SELECT id, title, vendor, product_type, price, raw_data, created_at, updated_at 
             FROM products 
-            ORDER BY created_at DESC
+            ORDER BY id ASC
         """).query { rs, _ ->
             Product(
                 id = rs.getLong("id"),
@@ -54,7 +54,7 @@ class ProductRepository(private val jdbcClient: JdbcClient) {
             SELECT id, title, vendor, product_type, price, raw_data, created_at, updated_at 
             FROM products 
             WHERE title ILIKE :title 
-            ORDER BY created_at DESC
+            ORDER BY id ASC
         """)
             .param("title", "%$title%")
             .query { rs, _ ->
@@ -74,7 +74,7 @@ class ProductRepository(private val jdbcClient: JdbcClient) {
     fun save(product: Product): Product {
         return if (product.id == null) {
             // Insert new product
-            val keyHolder = jdbcClient.sql("""
+            jdbcClient.sql("""
                 INSERT INTO products (title, vendor, product_type, price, raw_data, created_at, updated_at) 
                 VALUES (:title, :vendor, :productType, :price, :rawData, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             """)

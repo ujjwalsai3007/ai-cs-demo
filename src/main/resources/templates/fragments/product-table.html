@@ -2,6 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <div th:fragment="table" id="product-table">
+        <div class="table-header" th:if="${!allProducts.empty}">
+            <h3>Products (<span th:text="${allProducts.size()}">0</span>)</h3>
+            <sl-button variant="neutral" size="small" onclick="exportProducts()">
+                <sl-icon slot="prefix" name="download"></sl-icon>
+                Export CSV
+            </sl-button>
+        </div>
+        
         <table th:if="${!allProducts.empty}">
             <thead>
                 <tr>
@@ -26,15 +34,14 @@
                                 <sl-icon slot="prefix" name="pencil"></sl-icon>
                                 Edit
                             </sl-button>
-                            <div th:attr="hx-delete=@{'/products/' + ${product.id}}"
-                                 hx-target="#product-table" 
-                                 hx-swap="outerHTML"
-                                 hx-confirm="Are you sure you want to delete this product?">
-                                <sl-button size="small" variant="danger">
-                                    <sl-icon slot="prefix" name="trash"></sl-icon>
-                                    Delete
-                                </sl-button>
-                            </div>
+                            <sl-button size="small" variant="danger" 
+                                      th:hx-delete="@{'/products/' + ${product.id} + '/htmx'}"
+                                      hx-target="#product-table" 
+                                      hx-swap="outerHTML"
+                                      th:hx-confirm="'Are you sure you want to delete ' + ${product.title} + '?'">
+                                <sl-icon slot="prefix" name="trash"></sl-icon>
+                                Delete
+                            </sl-button>
                         </div>
                     </td>
                 </tr>
@@ -46,5 +53,25 @@
             <p>No products found. Add some products using the form below.</p>
         </div>
     </div>
+
+    <script>
+        function exportProducts() {
+            window.location.href = '/products/export';
+            showToast('Export started', 'primary');
+        }
+
+        function showToast(message, variant = 'primary') {
+            const toast = document.createElement('sl-alert');
+            toast.variant = variant;
+            toast.closable = true;
+            toast.duration = 3000;
+            toast.innerHTML = `
+                <sl-icon slot="icon" name="${variant === 'success' ? 'check-circle' : variant === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></sl-icon>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            toast.toast();
+        }
+    </script>
 </body>
 </html>

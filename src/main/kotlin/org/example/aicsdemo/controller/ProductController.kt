@@ -6,6 +6,11 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Controller
 class ProductController(private val productService: ProductService) {
@@ -57,7 +62,22 @@ class ProductController(private val productService: ProductService) {
     }
 
     @DeleteMapping("/products/{id}")
-    fun deleteProduct(@PathVariable id: Long, model: Model): String {
+    @ResponseBody
+    fun deleteProduct(@PathVariable id: Long): Map<String, Any> {
+        return try {
+            val deleted = productService.deleteProduct(id)
+            if (deleted) {
+                mapOf("success" to true, "message" to "Product deleted successfully")
+            } else {
+                mapOf("success" to false, "message" to "Product not found")
+            }
+        } catch (e: Exception) {
+            mapOf("success" to false, "message" to "Error deleting product: ${e.message}")
+        }
+    }
+
+    @DeleteMapping("/products/{id}/htmx")
+    fun deleteProductHtmx(@PathVariable id: Long, model: Model): String {
         productService.deleteProduct(id)
         model.addAttribute("allProducts", productService.getAllProducts())
         return "fragments/product-table :: table"
@@ -122,5 +142,32 @@ class ProductController(private val productService: ProductService) {
         } else {
             productService.searchProducts(q)
         }
+    }
+
+    @GetMapping("/products/export")
+    fun exportProducts(): ResponseEntity<String> {
+        val products = productService.getAllProducts()
+        val csv = StringBuilder()
+        
+        // Add CSV header
+        csv.append("ID,Title,Vendor,Product Type,Price,Created At\n")
+        
+        // Add product data
+        products.forEach { product ->
+            csv.append("${product.id},")
+            csv.append("\"${product.title.replace("\"", "\"\"")}\",")
+            csv.append("\"${product.vendor?.replace("\"", "\"\"") ?: ""}\",")
+            csv.append("\"${product.productType?.replace("\"", "\"\"") ?: ""}\",")
+            csv.append("${product.price ?: ""},")
+            csv.append("\"${product.createdAt?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) ?: ""}\"\n")
+        }
+        
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.TEXT_PLAIN
+        headers.setContentDispositionFormData("attachment", "products_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}.csv")
+        
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(csv.toString())
     }
 } 
