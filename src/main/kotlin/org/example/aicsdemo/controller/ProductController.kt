@@ -2,19 +2,26 @@ package org.example.aicsdemo.controller
 
 import org.example.aicsdemo.model.Product
 import org.example.aicsdemo.service.ProductService
-import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
-import java.math.BigDecimal
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Controller
-class ProductController(private val productService: ProductService) {
-
+class ProductController(
+    private val productService: ProductService,
+) {
     @GetMapping("/")
     fun index(model: Model): String {
         model.addAttribute("products", emptyList<Product>())
@@ -22,9 +29,7 @@ class ProductController(private val productService: ProductService) {
     }
 
     @GetMapping("/products")
-    fun loadProducts(): String {
-        return "fragments/product-table :: table"
-    }
+    fun loadProducts(): String = "fragments/product-table :: table"
 
     @PostMapping("/products")
     fun addProduct(
@@ -32,7 +37,7 @@ class ProductController(private val productService: ProductService) {
         @RequestParam vendor: String?,
         @RequestParam productType: String?,
         @RequestParam price: String?,
-        model: Model
+        model: Model,
     ): String {
         // Server-side validation
         if (title.isNullOrBlank()) {
@@ -41,20 +46,22 @@ class ProductController(private val productService: ProductService) {
             return "fragments/product-table :: table"
         }
 
-        val priceValue = price?.takeIf { it.isNotBlank() }?.let {
-            try {
-                BigDecimal(it)
-            } catch (e: NumberFormatException) {
-                null
+        val priceValue =
+            price?.takeIf { it.isNotBlank() }?.let {
+                try {
+                    BigDecimal(it)
+                } catch (e: NumberFormatException) {
+                    null
+                }
             }
-        }
 
-        val product = Product(
-            title = title,
-            vendor = vendor?.takeIf { it.isNotBlank() },
-            productType = productType?.takeIf { it.isNotBlank() },
-            price = priceValue
-        )
+        val product =
+            Product(
+                title = title,
+                vendor = vendor?.takeIf { it.isNotBlank() },
+                productType = productType?.takeIf { it.isNotBlank() },
+                price = priceValue,
+            )
 
         productService.saveProduct(product)
         model.addAttribute("allProducts", productService.getAllProducts())
@@ -63,8 +70,10 @@ class ProductController(private val productService: ProductService) {
 
     @DeleteMapping("/products/{id}")
     @ResponseBody
-    fun deleteProduct(@PathVariable id: Long): Map<String, Any> {
-        return try {
+    fun deleteProduct(
+        @PathVariable id: Long,
+    ): Map<String, Any> =
+        try {
             val deleted = productService.deleteProduct(id)
             if (deleted) {
                 mapOf("success" to true, "message" to "Product deleted successfully")
@@ -74,17 +83,22 @@ class ProductController(private val productService: ProductService) {
         } catch (e: Exception) {
             mapOf("success" to false, "message" to "Error deleting product: ${e.message}")
         }
-    }
 
     @DeleteMapping("/products/{id}/htmx")
-    fun deleteProductHtmx(@PathVariable id: Long, model: Model): String {
+    fun deleteProductHtmx(
+        @PathVariable id: Long,
+        model: Model,
+    ): String {
         productService.deleteProduct(id)
         model.addAttribute("allProducts", productService.getAllProducts())
         return "fragments/product-table :: table"
     }
 
     @GetMapping("/products/{id}/edit")
-    fun editProduct(@PathVariable id: Long, model: Model): String {
+    fun editProduct(
+        @PathVariable id: Long,
+        model: Model,
+    ): String {
         val product = productService.getProductById(id)
         model.addAttribute("product", product)
         return "edit-product"
@@ -96,24 +110,26 @@ class ProductController(private val productService: ProductService) {
         @RequestParam title: String,
         @RequestParam vendor: String?,
         @RequestParam productType: String?,
-        @RequestParam price: String?
+        @RequestParam price: String?,
     ): String {
         val existingProduct = productService.getProductById(id)
         if (existingProduct != null) {
-            val priceValue = price?.takeIf { it.isNotBlank() }?.let {
-                try {
-                    BigDecimal(it)
-                } catch (e: NumberFormatException) {
-                    null
+            val priceValue =
+                price?.takeIf { it.isNotBlank() }?.let {
+                    try {
+                        BigDecimal(it)
+                    } catch (e: NumberFormatException) {
+                        null
+                    }
                 }
-            }
 
-            val updatedProduct = existingProduct.copy(
-                title = title,
-                vendor = vendor?.takeIf { it.isNotBlank() },
-                productType = productType?.takeIf { it.isNotBlank() },
-                price = priceValue
-            )
+            val updatedProduct =
+                existingProduct.copy(
+                    title = title,
+                    vendor = vendor?.takeIf { it.isNotBlank() },
+                    productType = productType?.takeIf { it.isNotBlank() },
+                    price = priceValue,
+                )
 
             productService.saveProduct(updatedProduct)
         }
@@ -121,37 +137,34 @@ class ProductController(private val productService: ProductService) {
     }
 
     @GetMapping("/search")
-    fun searchPage(): String {
-        return "search"
-    }
+    fun searchPage(): String = "search"
 
     @GetMapping("/search/results")
-    fun searchProducts(@RequestParam q: String): String {
-        return "fragments/search-results :: results"
-    }
+    fun searchProducts(
+        @RequestParam q: String,
+    ): String = "fragments/search-results :: results"
 
     @ModelAttribute("allProducts")
-    fun allProducts(): List<Product> {
-        return productService.getAllProducts()
-    }
+    fun allProducts(): List<Product> = productService.getAllProducts()
 
     @ModelAttribute("searchResults")
-    fun searchResults(@RequestParam(required = false) q: String?): List<Product> {
-        return if (q.isNullOrBlank()) {
+    fun searchResults(
+        @RequestParam(required = false) q: String?,
+    ): List<Product> =
+        if (q.isNullOrBlank()) {
             emptyList()
         } else {
             productService.searchProducts(q)
         }
-    }
 
     @GetMapping("/products/export")
     fun exportProducts(): ResponseEntity<String> {
         val products = productService.getAllProducts()
         val csv = StringBuilder()
-        
+
         // Add CSV header
         csv.append("ID,Title,Vendor,Product Type,Price,Created At\n")
-        
+
         // Add product data
         products.forEach { product ->
             csv.append("${product.id},")
@@ -161,13 +174,17 @@ class ProductController(private val productService: ProductService) {
             csv.append("${product.price ?: ""},")
             csv.append("\"${product.createdAt?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) ?: ""}\"\n")
         }
-        
+
         val headers = HttpHeaders()
         headers.contentType = MediaType.TEXT_PLAIN
-        headers.setContentDispositionFormData("attachment", "products_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}.csv")
-        
-        return ResponseEntity.ok()
+        headers.setContentDispositionFormData(
+            "attachment",
+            "products_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}.csv",
+        )
+
+        return ResponseEntity
+            .ok()
             .headers(headers)
             .body(csv.toString())
     }
-} 
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Information - AI CS Demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.12.0/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.12.0/cdn/shoelace-autoloader.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+    <style>
+        body {
+            font-family: var(--sl-font-sans);
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e3e8ef;
+            padding-bottom: 1rem;
+        }
+        .info-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .highlight {
+            background-color: #f0f4ff;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .feature-title {
+            font-weight: bold;
+            color: #2a4dd0;
+        }
+        .back-link {
+            margin-top: 2rem;
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .tag-primary {
+            background-color: #2a4dd0;
+            color: white;
+        }
+        .tag-success {
+            background-color: #2ea86e;
+            color: white;
+        }
+        .tag-info {
+            background-color: #3f83f8;
+            color: white;
+        }
+        .feature-badge {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI CS Demo - System Information</h1>
+            <p>Demonstrating JDK 24, Virtual Threads, and RestClient with Spring Boot 3.4.5</p>
+        </div>
+
+        <div class="info-card">
+            <h2>Java Environment</h2>
+            <div class="highlight">
+                <div class="feature-title">Java Version:</div>
+                <sl-tag variant="primary" size="large" th:text="${javaVersion}"></sl-tag>
+                <div class="feature-title">VM Name:</div>
+                <div th:text="${vmName}"></div>
+                <div class="feature-title">VM Vendor:</div>
+                <div th:text="${vmVendor}"></div>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h2>🧵 Project Loom - Virtual Threads</h2>
+            <div class="highlight">
+                <div class="feature-title">Virtual Threads Enabled:</div>
+                <sl-tag variant="success" th:if="${loomEnabled == 'true'}">Enabled</sl-tag>
+                <sl-tag variant="danger" th:unless="${loomEnabled == 'true'}">Disabled</sl-tag>
+                
+                <div class="feature-title">Current Thread is Virtual:</div>
+                <sl-tag variant="success" th:if="${threadsVirtual}">Yes</sl-tag>
+                <sl-tag variant="danger" th:unless="${threadsVirtual}">No</sl-tag>
+                
+                <div class="feature-title">Active Virtual Threads:</div>
+                <sl-tag variant="info" th:text="${virtualThreadCount}"></sl-tag>
+                
+                <div class="feature-title">Active Platform Threads:</div>
+                <sl-tag variant="info" th:text="${platformThreadCount}"></sl-tag>
+                
+                <div class="feature-badge">
+                    <sl-icon name="info-circle"></sl-icon>
+                    <div>Project Loom enables lightweight thread creation for improved scalability</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h2>Framework Versions</h2>
+                <div class="highlight">
+                    <div class="feature-title">Spring Version:</div>
+                    <sl-tag variant="info" th:text="${springVersion}"></sl-tag>
+                    <div class="feature-title">Kotlin Version:</div>
+                    <sl-tag variant="info" th:text="${kotlinVersion}"></sl-tag>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2>⚙️ Modern APIs (No RestTemplate!)</h2>
+                <div class="highlight">
+                    <div class="feature-title">Using RestClient:</div>
+                    <sl-tag variant="success">Yes</sl-tag>
+                    
+                    <div class="feature-title">Using JDK HTTP Client:</div>
+                    <sl-tag variant="success" th:if="${jdkHttpClientUsed}">Yes</sl-tag>
+                    <sl-tag variant="danger" th:unless="${jdkHttpClientUsed}">No</sl-tag>
+                    
+                    <div class="feature-title">Implementation:</div>
+                    <div style="word-break: break-all; font-size: 0.85em;" th:text="${restClientClass}"></div>
+                    
+                    <div class="feature-badge">
+                        <sl-icon name="arrow-clockwise"></sl-icon>
+                        <div>RestClient is the modern replacement for RestTemplate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2>Operating System</h2>
+                <div class="highlight">
+                    <div class="feature-title">OS Name:</div>
+                    <div th:text="${osName}"></div>
+                    <div class="feature-title">OS Version:</div>
+                    <div th:text="${osVersion}"></div>
+                    <div class="feature-title">Architecture:</div>
+                    <div th:text="${osArch}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <sl-button href="/" variant="primary">Back to Products</sl-button>
+        </div>
+    </div>
+</body>
+</html> 

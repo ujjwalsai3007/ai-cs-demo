@@ -2,5 +2,5 @@
 -- Clear all existing data
 DELETE FROM products;
 
--- Reset the sequence to start from 1
-ALTER SEQUENCE products_id_seq RESTART WITH 1; 
+-- For PostgreSQL only (will be ignored on H2)
+-- SELECT setval('products_id_seq', 1, false) WHERE EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_name = 'products_id_seq'); 

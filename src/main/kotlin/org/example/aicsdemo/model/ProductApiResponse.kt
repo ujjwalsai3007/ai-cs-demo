@@ -3,7 +3,7 @@ package org.example.aicsdemo.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ProductApiResponse(
-    val products: List<ProductApi>
+    val products: List<ProductApi>,
 )
 
 data class ProductApi(
@@ -12,7 +12,7 @@ data class ProductApi(
     val vendor: String?,
     @JsonProperty("product_type")
     val productType: String?,
-    val variants: List<VariantApi>?
+    val variants: List<VariantApi>?,
 )
 
 data class VariantApi(
@@ -20,5 +20,5 @@ data class VariantApi(
     val title: String,
     val price: String?,
     @JsonProperty("compare_at_price")
-    val compareAtPrice: String?
-) 
+    val compareAtPrice: String?,
+)

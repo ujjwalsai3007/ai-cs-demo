@@ -11,5 +11,5 @@ data class Product(
     val price: BigDecimal? = null,
     val rawData: String? = null, // JSONB stored as string
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
-) 
+    val updatedAt: LocalDateTime? = null,
+)
